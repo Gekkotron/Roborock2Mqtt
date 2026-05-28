@@ -1,0 +1,8 @@
+services:
+  roborock-mqtt:
+    build: .
+    image: roborock-mqtt:latest
+    container_name: roborock-mqtt
+    restart: unless-stopped
+    env_file: .env
+    network_mode: host
