@@ -19,6 +19,7 @@ cp .env.example .env
 | `BROKER_USERNAME` | no | — | MQTT username (optional) |
 | `BROKER_PASSWORD` | no | — | MQTT password (optional) |
 | `TOPIC_PREFIX` | no | `roborock` | Base topic |
+| `MIIO_DEVICE` | no | `roborockvacuum` | miiocli device subcommand (e.g. `dreamevacuum`, `viomivacuum`) |
 | `STATUS_INTERVAL` | no | `600` | Status publish interval (s) |
 | `CONSUMABLE_INTERVAL` | no | `86400` | Consumable status interval (s) |
 | `ALIVE_INTERVAL` | no | `240` | Alive heartbeat interval (s) |

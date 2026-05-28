@@ -31,6 +31,7 @@ BROKER_PORT = int(os.getenv("BROKER_PORT", "1883"))
 BROKER_USERNAME = os.getenv("BROKER_USERNAME")
 BROKER_PASSWORD = os.getenv("BROKER_PASSWORD")
 TOPIC_PREFIX = os.getenv("TOPIC_PREFIX", "roborock").rstrip("/")
+MIIO_DEVICE = os.getenv("MIIO_DEVICE", "roborockvacuum")
 
 STATUS_INTERVAL = int(os.getenv("STATUS_INTERVAL", "600"))
 CONSUMABLE_INTERVAL = int(os.getenv("CONSUMABLE_INTERVAL", str(24 * 3600)))
@@ -48,7 +49,7 @@ def miiocli(command: str) -> str:
     args = [
         "miiocli",
         "-o", "json_pretty",
-        "vacuum",
+        MIIO_DEVICE,
         "--ip", VACUUM_IP,
         "--token", VACUUM_TOKEN,
         *shlex.split(command),
