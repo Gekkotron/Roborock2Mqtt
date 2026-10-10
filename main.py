@@ -92,6 +92,8 @@ def schedule(interval: int, fn) -> None:
     t = threading.Timer(interval, fn)
     t.daemon = True
     t.start()
+    # Drop finished timers: the HA loop schedules one every HA_STATUS_INTERVAL
+    timers[:] = [x for x in timers if x.is_alive()]
     timers.append(t)
 
 
@@ -127,8 +129,11 @@ def ha_announce(client: mqtt.Client) -> None:
 def ha_refresh(client: mqtt.Client) -> None:
     if ha_presets is None:
         return
-    status = ha_discovery.parse_json(miiocli("status"))
+    output = miiocli("status")
+    status = ha_discovery.parse_json(output)
     if status is None:
+        # publish() routes any "Error" text to <prefix>/error, prefixed with the destination
+        publish(client, topic("ha/state"), output if "Error" in output else f"Error: unexpected status output: {output}")
         return
     state = ha_discovery.vacuum_state(status, ha_presets)
     client.publish(topic("ha/state"), json.dumps(state), qos=1, retain=True)
@@ -172,7 +177,8 @@ def on_connect(client, userdata, flags, reason_code, properties=None):
     alive(client)
     if HA_DISCOVERY_ENABLED and not ha_started.is_set():
         ha_started.set()
-        ha_loop(client)
+        # On a timer, not here: miiocli calls block and the network loop must keep the keepalive going
+        schedule(0, lambda: ha_loop(client))
 
 
 def on_disconnect(client, userdata, *args):
