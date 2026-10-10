@@ -21,7 +21,7 @@ ENV PYTHONUNBUFFERED=1 \
 COPY --from=builder /install /usr/local
 
 WORKDIR /app
-COPY main.py .
+COPY main.py ha_discovery.py ./
 
 RUN useradd --create-home --uid 1000 app
 USER app

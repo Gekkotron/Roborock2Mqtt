@@ -27,6 +27,9 @@ cp .env.example .env
 | `STATUS_INTERVAL` | no | `600` | Status publish interval (s) |
 | `CONSUMABLE_INTERVAL` | no | `86400` | Consumable status interval (s) |
 | `ALIVE_INTERVAL` | no | `240` | Alive heartbeat interval (s) |
+| `HA_DISCOVERY_ENABLED` | no | `false` | Publish Home Assistant MQTT discovery for the vacuum (`true` to enable) |
+| `HA_DISCOVERY_PREFIX` | no | `homeassistant` | Discovery prefix |
+| `HA_STATUS_INTERVAL` | no | `30` | HA state refresh interval (s) |
 | `LOG_LEVEL` | no | `INFO` | `DEBUG`, `INFO`, `WARNING`, `ERROR` |
 
 ## Run with Docker (recommended)
@@ -81,6 +84,19 @@ Subscribe to everything:
 ```bash
 mosquitto_sub -t 'roborock/#' -v
 ```
+
+## Home Assistant discovery
+
+With `HA_DISCOVERY_ENABLED=true` the bridge announces one `vacuum` entity (HA state schema) on
+`homeassistant/vacuum/roborock_<mac>/roborock_<mac>/config`, built from the unit's `info` and `fan_speed_presets`.
+
+| Topic | Direction | Payload |
+| --- | --- | --- |
+| `roborock/ha/state` | out, retained | `{"state": "docked", "battery_level": 100, "fan_speed": "Turbo", "error_code": 0}` every `HA_STATUS_INTERVAL` s and right after each command |
+| `roborock/ha/command` | in | `start`, `pause`, `stop`, `return_to_base`, `locate` |
+| `roborock/ha/fan_speed/set` | in | a preset name from `fan_speed_list`, e.g. `Turbo` |
+
+Availability is `roborock/alive` (`1` / `0`, retained). The `info` result on `roborock/result` no longer contains the miio token.
 
 ## Troubleshooting
 
